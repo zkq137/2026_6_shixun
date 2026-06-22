@@ -23,3 +23,16 @@ http://localhost:8000/health
 http://localhost:8000/health/db
 ```
 
+## Database setup
+
+Initialize tables and demo data:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\init_db.py
+```
+
+Check database status:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\check_db.py
+```

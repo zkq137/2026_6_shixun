@@ -33,3 +33,7 @@ frontend/*.tsbuildinfo
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local AI assistant metadata
+.agents/
+.codex/

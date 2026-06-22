@@ -44,7 +44,10 @@ class Settings:
 
     @cached_property
     def cors_origins(self) -> list[str]:
-        raw = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+        raw = os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174",
+        )
         return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
     @property
@@ -69,4 +72,3 @@ class Settings:
 
 
 settings = Settings()
-

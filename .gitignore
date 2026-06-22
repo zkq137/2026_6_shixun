@@ -1,10 +1,35 @@
-.venv/
+# Python
+backend/.venv/
+**/.venv/
 __pycache__/
+**/__pycache__/
 *.py[cod]
-*.log
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+
+# Environment files and secrets
 .env
-dist/
+backend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+*.log
+backend/*.log
+frontend/*.log
+
+# Node / Vue / Vite
 node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+frontend/.npm-cache/
+*.tsbuildinfo
+frontend/*.tsbuildinfo
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
@@ -21,6 +22,7 @@ class UserPublic(BaseModel):
     email: str | None = None
     nickname: str | None = None
     avatar_url: str | None = None
+    balance: Decimal
     status: str
     created_at: datetime | None = None
 
@@ -31,4 +33,3 @@ class LoginResult(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserPublic
-

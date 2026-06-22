@@ -11,6 +11,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import app.models  # noqa: F401
+from sqlalchemy import inspect, text
+
 from app.core.database import Base, SessionLocal, engine
 from app.core.security import hash_password
 from app.models import (
@@ -102,6 +104,18 @@ def get_or_create(session, model, defaults: dict | None = None, **filters):
     return instance, True
 
 
+def ensure_lightweight_schema_updates():
+    inspector = inspect(engine)
+    if "users" in inspector.get_table_names():
+        user_columns = {column["name"] for column in inspector.get_columns("users")}
+        if "balance" not in user_columns:
+            with engine.begin() as connection:
+                connection.execute(
+                    text("ALTER TABLE users ADD COLUMN balance DECIMAL(12,2) NOT NULL DEFAULT 100000.00")
+                )
+                connection.execute(text("UPDATE users SET balance = 100000.00 WHERE balance IS NULL"))
+
+
 def seed_accounts(session):
     admin, _ = get_or_create(
         session,
@@ -126,6 +140,7 @@ def seed_accounts(session):
                 "email": f"user{index}@example.com",
                 "nickname": f"演示用户{index}",
                 "avatar_url": "",
+                "balance": Decimal("100000.00"),
                 "status": "normal",
             },
         )
@@ -347,6 +362,7 @@ def seed_ai_and_sales(session, admin, users, products):
 
 def main():
     Base.metadata.create_all(bind=engine)
+    ensure_lightweight_schema_updates()
 
     with SessionLocal() as session:
         admin, users = seed_accounts(session)
@@ -362,4 +378,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

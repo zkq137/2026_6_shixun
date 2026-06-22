@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from decimal import Decimal
 
 from app.models import User
 
@@ -23,9 +24,9 @@ def create_user(
         password_hash=password_hash,
         phone=phone,
         nickname=username,
+        balance=Decimal("100000.00"),
         status="normal",
     )
     db.add(user)
     db.flush()
     return user
-

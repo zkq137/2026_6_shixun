@@ -5,7 +5,20 @@ from fastapi import HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.models import Category, InventoryAlert, Order, Product, SalesPrediction, SalesStatistic, User
+from app.models import (
+    Cart,
+    Category,
+    InventoryAlert,
+    Order,
+    OrderItem,
+    Product,
+    ProductSimilarity,
+    RecommendResult,
+    SalesPrediction,
+    SalesStatistic,
+    User,
+    UserBehavior,
+)
 from app.schemas.admin import DashboardStats
 from app.schemas.product import CategoryCreate, CategoryUpdate, ProductCreate, ProductUpdate
 
@@ -71,6 +84,34 @@ def update_product_status(db: Session, product_id: int, status_value: str) -> Pr
     db.commit()
     db.refresh(product)
     return product
+
+
+def delete_product(db: Session, product_id: int) -> dict[str, int | bool]:
+    product = db.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+
+    reference_count = 0
+    reference_count += db.query(Cart).filter(Cart.product_id == product_id).count()
+    reference_count += db.query(OrderItem).filter(OrderItem.product_id == product_id).count()
+    reference_count += db.query(UserBehavior).filter(UserBehavior.product_id == product_id).count()
+    reference_count += db.query(ProductSimilarity).filter(
+        (ProductSimilarity.product_id == product_id) | (ProductSimilarity.similar_product_id == product_id)
+    ).count()
+    reference_count += db.query(RecommendResult).filter(RecommendResult.product_id == product_id).count()
+    reference_count += db.query(SalesStatistic).filter(SalesStatistic.product_id == product_id).count()
+    reference_count += db.query(SalesPrediction).filter(SalesPrediction.product_id == product_id).count()
+    reference_count += db.query(InventoryAlert).filter(InventoryAlert.product_id == product_id).count()
+
+    if reference_count > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="商品已有订单、购物车、行为或统计记录，不能永久删除，请使用下架。",
+        )
+
+    db.delete(product)
+    db.commit()
+    return {"id": product_id, "deleted": True}
 
 
 def list_categories(db: Session):

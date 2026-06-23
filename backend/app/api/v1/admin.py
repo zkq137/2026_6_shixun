@@ -106,13 +106,13 @@ def update_product_status(
     )
 
 
-@router.delete("/products/{product_id}", response_model=ApiResponse[ProductDetail])
+@router.delete("/products/{product_id}", response_model=ApiResponse[dict])
 def delete_product(
     product_id: int,
     current_admin: Admin = Depends(get_current_admin),
     db: Session = Depends(get_db),
-) -> ApiResponse[ProductDetail]:
-    return ApiResponse(data=ProductDetail.model_validate(admin_service.update_product_status(db, product_id, "off_sale")))
+) -> ApiResponse[dict]:
+    return ApiResponse(data=admin_service.delete_product(db, product_id))
 
 
 @router.get("/categories", response_model=ApiResponse[list[CategoryPublic]])

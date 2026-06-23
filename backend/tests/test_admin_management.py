@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from uuid import uuid4
 
@@ -5,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.core.database import SessionLocal
 from app.main import app
-from app.models import Category, InventoryAlert, Order, User
+from app.models import Category, InventoryAlert, Order, SalesStatistic, User
 
 
 client = TestClient(app)
@@ -109,7 +110,41 @@ def test_admin_category_and_product_crud() -> None:
 
     delete_product = client.delete(f"/api/admin/products/{product_id}", headers=headers)
     assert delete_product.status_code == 200
-    assert delete_product.json()["data"]["status"] == "off_sale"
+    assert delete_product.json()["data"] == {"id": product_id, "deleted": True}
+
+    deleted_detail = client.get(f"/api/products/{product_id}")
+    assert deleted_detail.status_code == 404
+
+    referenced_product_name = f"引用商品{uuid4().hex[:6]}"
+    referenced_product = client.post(
+        "/api/admin/products",
+        headers=headers,
+        json={
+            "category_id": category_id,
+            "name": referenced_product_name,
+            "subtitle": "用于删除保护测试",
+            "main_image": "/images/products/test-reference.jpg",
+            "price": "18.00",
+            "stock": 10,
+            "description": "已有统计记录时不能永久删除",
+            "status": "off_sale",
+        },
+    )
+    assert referenced_product.status_code == 200
+    referenced_product_id = referenced_product.json()["data"]["id"]
+    with SessionLocal() as session:
+        session.add(
+            SalesStatistic(
+                product_id=referenced_product_id,
+                stat_date=date.today(),
+                sales_count=1,
+                sales_amount=Decimal("18.00"),
+            )
+        )
+        session.commit()
+
+    blocked_delete = client.delete(f"/api/admin/products/{referenced_product_id}", headers=headers)
+    assert blocked_delete.status_code == 409
 
 
 def test_admin_orders_users_inventory_and_sales() -> None:
@@ -173,4 +208,3 @@ def test_admin_orders_users_inventory_and_sales() -> None:
     )
     assert predict.status_code == 200
     assert predict.json()["data"]["method"] == "moving_average"
-

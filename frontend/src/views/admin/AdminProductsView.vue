@@ -23,7 +23,9 @@
         <template #default="{ row }">
           <el-button size="small" @click="openEdit(row)">编辑</el-button>
           <el-button size="small" @click="toggle(row)">{{ row.status === 'on_sale' ? '下架' : '上架' }}</el-button>
-          <el-button size="small" type="danger" @click="remove(row)">删除</el-button>
+          <el-button size="small" type="danger" @click="remove(row)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -72,7 +74,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { adminApi } from '@/api'
 import type { Category, Product } from '@/types'
@@ -159,7 +161,13 @@ async function toggle(row: Product) {
 }
 
 async function remove(row: Product) {
+  await ElMessageBox.confirm(
+    `确认永久删除“${row.name}”吗？如果商品已有订单、购物车、行为或统计记录，系统会拒绝删除，请改用下架。`,
+    '删除商品',
+    { type: 'warning', confirmButtonText: '确认删除', cancelButtonText: '取消' },
+  )
   await adminApi.deleteProduct(row.id)
+  ElMessage.success('商品已删除')
   await load()
 }
 

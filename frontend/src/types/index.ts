@@ -49,6 +49,33 @@ export interface Product {
   status: string
 }
 
+export interface Review {
+  id: number
+  product_id: number
+  user_id: number
+  username: string
+  nickname?: string
+  rating: number
+  content: string
+  is_anonymous: boolean
+  is_purchased: boolean
+  status: string
+  created_at?: string
+}
+
+export interface AdminReview extends Review {
+  product_name: string
+  order_id?: number
+  updated_at?: string
+}
+
+export interface ReviewPage extends PageResponse<Review> {
+  summary: {
+    total: number
+    average_rating: number
+  }
+}
+
 export interface UploadResult {
   url: string
   filename: string

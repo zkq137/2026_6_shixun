@@ -25,8 +25,9 @@ from app.schemas.product import (
     ProductUpdate,
     StatusUpdate,
 )
+from app.schemas.review import AdminReviewPublic, ReviewStatusUpdate
 from app.schemas.upload import UploadResult
-from app.services import admin_auth_service, admin_service, ai_service
+from app.services import admin_auth_service, admin_service, ai_service, review_service
 from app.services.upload_service import save_product_image
 from app.repositories import order_repository
 
@@ -236,6 +237,37 @@ def update_user_status(
     db: Session = Depends(get_db),
 ) -> ApiResponse[AdminUserPublic]:
     return ApiResponse(data=AdminUserPublic.model_validate(admin_service.update_user_status(db, user_id, payload.status)))
+
+
+@router.get("/reviews", response_model=ApiResponse[PageResponse[AdminReviewPublic]])
+def list_reviews(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=100),
+    product_id: int | None = None,
+    user_id: int | None = None,
+    status: str | None = None,
+    current_admin: Admin = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+) -> ApiResponse[PageResponse[AdminReviewPublic]]:
+    items, total = review_service.list_admin_reviews(
+        db,
+        page=page,
+        page_size=page_size,
+        product_id=product_id,
+        user_id=user_id,
+        status_value=status,
+    )
+    return ApiResponse(data=PageResponse(items=items, total=total, page=page, page_size=page_size))
+
+
+@router.put("/reviews/{review_id}/status", response_model=ApiResponse[AdminReviewPublic])
+def update_review_status(
+    review_id: int,
+    payload: ReviewStatusUpdate,
+    current_admin: Admin = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+) -> ApiResponse[AdminReviewPublic]:
+    return ApiResponse(data=review_service.update_review_status(db, review_id=review_id, status_value=payload.status))
 
 
 @router.get("/inventory/alerts", response_model=ApiResponse[PageResponse[InventoryAlertPublic]])

@@ -12,6 +12,7 @@ from app.models import (
     Order,
     OrderItem,
     Product,
+    ProductReview,
     ProductSimilarity,
     RecommendResult,
     SalesPrediction,
@@ -99,6 +100,7 @@ def delete_product(db: Session, product_id: int) -> dict[str, int | bool]:
         (ProductSimilarity.product_id == product_id) | (ProductSimilarity.similar_product_id == product_id)
     ).count()
     reference_count += db.query(RecommendResult).filter(RecommendResult.product_id == product_id).count()
+    reference_count += db.query(ProductReview).filter(ProductReview.product_id == product_id).count()
     reference_count += db.query(SalesStatistic).filter(SalesStatistic.product_id == product_id).count()
     reference_count += db.query(SalesPrediction).filter(SalesPrediction.product_id == product_id).count()
     reference_count += db.query(InventoryAlert).filter(InventoryAlert.product_id == product_id).count()
@@ -106,7 +108,7 @@ def delete_product(db: Session, product_id: int) -> dict[str, int | bool]:
     if reference_count > 0:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="商品已有订单、购物车、行为或统计记录，不能永久删除，请使用下架。",
+            detail="商品已有订单、购物车、评论、行为或统计记录，不能永久删除，请使用下架。",
         )
 
     db.delete(product)

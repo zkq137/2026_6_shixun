@@ -7,6 +7,7 @@
         <el-menu-item index="/admin/products">商品管理</el-menu-item>
         <el-menu-item index="/admin/categories">分类管理</el-menu-item>
         <el-menu-item index="/admin/orders">订单管理</el-menu-item>
+        <el-menu-item index="/admin/reviews">评论管理</el-menu-item>
         <el-menu-item index="/admin/users">用户管理</el-menu-item>
         <el-menu-item index="/admin/inventory">库存管理</el-menu-item>
         <el-menu-item index="/admin/ai/operation">AI运营助手</el-menu-item>
@@ -63,4 +64,3 @@ function logout() {
   border-bottom: 1px solid #e5e7eb;
 }
 </style>
-

@@ -26,6 +26,7 @@ from app.models import (
     Order,
     OrderItem,
     Product,
+    ProductReview,
     ProductSimilarity,
     RecommendResult,
     SalesPrediction,
@@ -360,6 +361,41 @@ def seed_ai_and_sales(session, admin, users, products):
         session.add(admin_conversation)
 
 
+def seed_reviews(session, users, products):
+    if session.query(ProductReview).count() > 0:
+        return
+
+    samples = [
+        (0, 0, 5, "耳机连接很稳定，通勤用起来挺方便。", False),
+        (1, 0, 4, "降噪效果不错，佩戴时间长了稍微有点夹。", False),
+        (2, 1, 5, "充电速度快，体积也不大。", True),
+        (6, 1, 4, "鞋底比较软，日常慢跑够用了。", False),
+        (10, 3, 5, "椅子支撑感很好，久坐比以前舒服。", False),
+        (20, 4, 4, "咖啡味道可以，独立包装很适合办公室。", True),
+    ]
+    for product_index, user_index, rating, content, anonymous in samples:
+        product = products[product_index]
+        user = users[user_index]
+        order = (
+            session.query(Order)
+            .join(OrderItem, OrderItem.order_id == Order.id)
+            .filter(Order.user_id == user.id, OrderItem.product_id == product.id)
+            .first()
+        )
+        session.add(
+            ProductReview(
+                product_id=product.id,
+                user_id=user.id,
+                order_id=order.id if order else None,
+                rating=rating,
+                content=content,
+                is_anonymous=1 if anonymous else 0,
+                is_purchased=1 if order else 0,
+                status="visible",
+            )
+        )
+
+
 def main():
     Base.metadata.create_all(bind=engine)
     ensure_lightweight_schema_updates()
@@ -371,6 +407,7 @@ def main():
         seed_faqs(session)
         seed_orders_and_behaviors(session, users, products)
         seed_ai_and_sales(session, admin, users, products)
+        seed_reviews(session, users, products)
         session.commit()
 
     print("Database initialized successfully.")

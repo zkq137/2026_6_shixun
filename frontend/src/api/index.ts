@@ -1,5 +1,5 @@
-import { apiDelete, apiGet, apiPost, apiPut } from './http'
-import type { Admin, AiResponse, Cart, Category, Order, PageResponse, Product, User } from '@/types'
+import { apiDelete, apiGet, apiPost, apiPut, apiUpload } from './http'
+import type { Admin, AiResponse, Cart, Category, Order, PageResponse, Product, UploadResult, User } from '@/types'
 
 export const mallApi = {
   register: (data: { username: string; password: string; phone?: string }) => apiPost<User>('/auth/register', data),
@@ -30,6 +30,7 @@ export const adminApi = {
   updateProduct: (id: number, data: Partial<Product>) => apiPut<Product>(`/admin/products/${id}`, data, true),
   updateProductStatus: (id: number, status: string) => apiPut<Product>(`/admin/products/${id}/status`, { status }, true),
   deleteProduct: (id: number) => apiDelete<Product>(`/admin/products/${id}`, true),
+  uploadProductImage: (file: File) => apiUpload<UploadResult>('/admin/uploads/product-image', file, true),
   categories: () => apiGet<Category[]>('/admin/categories', undefined, true),
   createCategory: (data: Partial<Category>) => apiPost<Category>('/admin/categories', data, true),
   updateCategory: (id: number, data: Partial<Category>) => apiPut<Category>(`/admin/categories/${id}`, data, true),
@@ -45,4 +46,3 @@ export const adminApi = {
   toolCalls: () => apiGet<PageResponse<any>>('/admin/ai/tool-calls', undefined, true),
   aiChat: (data: { agent_type: string; message: string; conversation_id?: number }) => apiPost<AiResponse>('/ai/chat', data, true),
 }
-

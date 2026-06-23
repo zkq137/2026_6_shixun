@@ -49,6 +49,13 @@ export interface Product {
   status: string
 }
 
+export interface UploadResult {
+  url: string
+  filename: string
+  size: number
+  content_type: string
+}
+
 export interface CartItem {
   id: number
   product_id: number
@@ -95,4 +102,3 @@ export interface AiResponse {
   answer: string
   tool_calls: Array<{ tool_name: string; status: string }>
 }
-

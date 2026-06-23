@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -25,7 +25,9 @@ from app.schemas.product import (
     ProductUpdate,
     StatusUpdate,
 )
+from app.schemas.upload import UploadResult
 from app.services import admin_auth_service, admin_service, ai_service
+from app.services.upload_service import save_product_image
 from app.repositories import order_repository
 
 router = APIRouter(prefix="/admin")
@@ -35,6 +37,14 @@ router = APIRouter(prefix="/admin")
 def login_admin(payload: AdminLogin, db: Session = Depends(get_db)) -> ApiResponse[AdminLoginResult]:
     token, admin = admin_auth_service.login_admin(db, username=payload.username, password=payload.password)
     return ApiResponse(data=AdminLoginResult(access_token=token, admin=AdminPublic.model_validate(admin)))
+
+
+@router.post("/uploads/product-image", response_model=ApiResponse[UploadResult])
+async def upload_product_image(
+    file: UploadFile = File(...),
+    current_admin: Admin = Depends(get_current_admin),
+) -> ApiResponse[UploadResult]:
+    return ApiResponse(data=await save_product_image(file))
 
 
 @router.get("/dashboard", response_model=ApiResponse[DashboardStats])

@@ -1,7 +1,12 @@
 <template>
   <div class="page" v-if="product">
     <el-row :gutter="24">
-      <el-col :span="10"><div class="product-image">{{ product.name.slice(0, 2) }}</div></el-col>
+      <el-col :span="10">
+        <div class="product-image">
+          <img v-if="imageUrl && !imageFailed" :src="imageUrl" :alt="product.name" @error="imageFailed = true" />
+          <span v-else>{{ product.name.slice(0, 2) }}</span>
+        </div>
+      </el-col>
       <el-col :span="14">
         <h1>{{ product.name }}</h1>
         <p class="muted">{{ product.subtitle }}</p>
@@ -18,16 +23,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { mallApi } from '@/api'
 import type { Product } from '@/types'
+import { resolveImageUrl } from '@/utils/image'
 
 const route = useRoute()
 const router = useRouter()
 const product = ref<Product>()
 const quantity = ref(1)
+const imageFailed = ref(false)
+const imageUrl = computed(() => resolveImageUrl(product.value?.main_image))
+
+watch(imageUrl, () => {
+  imageFailed.value = false
+})
 
 async function add() {
   if (!product.value) return
@@ -46,11 +58,18 @@ onMounted(async () => {
   display: grid;
   place-items: center;
   aspect-ratio: 4 / 3;
+  overflow: hidden;
   border-radius: 8px;
   background: #e2e8f0;
   color: #64748b;
   font-size: 42px;
   font-weight: 800;
 }
-</style>
 
+.product-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>

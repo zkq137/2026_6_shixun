@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from functools import cached_property
 
 from dotenv import load_dotenv
@@ -41,6 +42,14 @@ class Settings:
     @property
     def redis_url(self) -> str:
         return os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+    @property
+    def upload_dir(self) -> Path:
+        return Path(os.getenv("UPLOAD_DIR", "uploads")).resolve()
+
+    @property
+    def max_upload_size(self) -> int:
+        return int(os.getenv("MAX_UPLOAD_SIZE", str(5 * 1024 * 1024)))
 
     @cached_property
     def cors_origins(self) -> list[str]:

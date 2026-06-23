@@ -19,6 +19,9 @@ frontend/.env.*.local
 backend/*.log
 frontend/*.log
 
+# Runtime uploads
+backend/uploads/
+
 # Node / Vue / Vite
 node_modules/
 frontend/node_modules/

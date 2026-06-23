@@ -47,3 +47,14 @@ export async function apiDelete<T>(url: string, admin = false) {
   return response.data.data
 }
 
+export async function apiUpload<T>(url: string, file: File, admin = false) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await http.post<ApiResponse<T>>(url, formData, {
+    headers: {
+      ...(admin ? { 'X-Admin-Auth': '1' } : {}),
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+  return response.data.data
+}

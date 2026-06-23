@@ -2,7 +2,7 @@
   <div class="admin-page">
     <div class="toolbar">
       <el-input v-model="keyword" placeholder="商品名称" style="width: 220px" />
-      <el-button type="primary" @click="load">搜索</el-button>
+      <el-button type="primary" @click="search">搜索</el-button>
       <el-button @click="openCreate">新增商品</el-button>
     </div>
     <el-table :data="items">
@@ -29,6 +29,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="pagination">
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 30, 50]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @current-change="load"
+        @size-change="handleSizeChange"
+      />
+    </div>
     <el-dialog v-model="dialog" title="商品" width="680px">
       <el-form label-position="top">
         <el-form-item label="分类">
@@ -83,6 +94,9 @@ import { resolveImageUrl } from '@/utils/image'
 const items = ref<Product[]>([])
 const categories = ref<Category[]>([])
 const keyword = ref('')
+const page = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
 const dialog = ref(false)
 const uploading = ref(false)
 const editingId = ref<number>()
@@ -100,7 +114,32 @@ const form = reactive<any>({
 const previewUrl = computed(() => resolveImageUrl(form.main_image))
 
 async function load() {
-  items.value = (await adminApi.products({ keyword: keyword.value })).items
+  const data = await adminApi.products({
+    keyword: keyword.value,
+    page: page.value,
+    page_size: pageSize.value,
+  })
+  items.value = data.items
+  total.value = data.total
+}
+
+async function search() {
+  page.value = 1
+  await load()
+}
+
+async function handleSizeChange(size: number) {
+  pageSize.value = size
+  page.value = 1
+  await load()
+}
+
+async function reloadAfterMutation() {
+  await load()
+  if (items.value.length === 0 && total.value > 0 && page.value > 1) {
+    page.value -= 1
+    await load()
+  }
 }
 
 function resetForm() {
@@ -152,12 +191,12 @@ async function save() {
     await adminApi.createProduct(form)
   }
   dialog.value = false
-  await load()
+  await reloadAfterMutation()
 }
 
 async function toggle(row: Product) {
   await adminApi.updateProductStatus(row.id, row.status === 'on_sale' ? 'off_sale' : 'on_sale')
-  await load()
+  await reloadAfterMutation()
 }
 
 async function remove(row: Product) {
@@ -168,7 +207,7 @@ async function remove(row: Product) {
   )
   await adminApi.deleteProduct(row.id)
   ElMessage.success('商品已删除')
-  await load()
+  await reloadAfterMutation()
 }
 
 onMounted(async () => {
@@ -220,5 +259,11 @@ onMounted(async () => {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 </style>

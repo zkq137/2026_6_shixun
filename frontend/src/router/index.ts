@@ -32,6 +32,7 @@ export const router = createRouter({
         { path: 'products', component: () => import('@/views/admin/AdminProductsView.vue') },
         { path: 'categories', component: () => import('@/views/admin/AdminCategoriesView.vue') },
         { path: 'orders', component: () => import('@/views/admin/AdminOrdersView.vue') },
+        { path: 'reviews', component: () => import('@/views/admin/AdminReviewsView.vue') },
         { path: 'users', component: () => import('@/views/admin/AdminUsersView.vue') },
         { path: 'inventory', component: () => import('@/views/admin/AdminInventoryView.vue') },
         { path: 'ai/operation', component: () => import('@/views/admin/AdminAiView.vue') },
@@ -46,4 +47,3 @@ router.beforeEach((to) => {
   if (to.meta.user && !auth.userToken) return '/login'
   if (to.meta.admin && !auth.adminToken) return '/admin/login'
 })
-

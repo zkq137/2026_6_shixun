@@ -11,7 +11,7 @@ import app.models  # noqa: F401
 from sqlalchemy import inspect, text
 
 from app.core.database import SessionLocal, engine
-from app.models import Admin, Category, Faq, Product, SalesStatistic, UserBehavior
+from app.models import Admin, Category, Faq, Product, ProductReview, SalesStatistic, UserBehavior
 
 
 def count(session, model) -> int:
@@ -31,6 +31,7 @@ def main():
         print(f"admins: {count(session, Admin)}")
         print(f"categories: {count(session, Category)}")
         print(f"products: {count(session, Product)}")
+        print(f"product_reviews: {count(session, ProductReview)}")
         print(f"faqs: {count(session, Faq)}")
         print(f"user_behaviors: {count(session, UserBehavior)}")
         print(f"sales_statistics: {count(session, SalesStatistic)}")
@@ -38,4 +39,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

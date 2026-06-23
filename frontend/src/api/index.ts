@@ -1,5 +1,18 @@
 import { apiDelete, apiGet, apiPost, apiPut, apiUpload } from './http'
-import type { Admin, AiResponse, Cart, Category, Order, PageResponse, Product, UploadResult, User } from '@/types'
+import type {
+  Admin,
+  AdminReview,
+  AiResponse,
+  Cart,
+  Category,
+  Order,
+  PageResponse,
+  Product,
+  Review,
+  ReviewPage,
+  UploadResult,
+  User,
+} from '@/types'
 
 export const mallApi = {
   register: (data: { username: string; password: string; phone?: string }) => apiPost<User>('/auth/register', data),
@@ -10,6 +23,10 @@ export const mallApi = {
   products: (params?: Record<string, unknown>) => apiGet<PageResponse<Product>>('/products', params),
   hotProducts: (limit = 8) => apiGet<Product[]>('/products/hot', { limit }),
   product: (id: number) => apiGet<Product>(`/products/${id}`),
+  productReviews: (id: number, params?: Record<string, unknown>) =>
+    apiGet<ReviewPage>(`/products/${id}/reviews`, params),
+  createProductReview: (id: number, data: { rating: number; content: string; is_anonymous: boolean }) =>
+    apiPost<Review>(`/products/${id}/reviews`, data),
   cart: () => apiGet<Cart>('/cart'),
   addCart: (data: { product_id: number; quantity: number }) => apiPost<Cart>('/cart/items', data),
   updateCart: (id: number, data: { quantity?: number; selected?: boolean }) => apiPut<Cart>(`/cart/items/${id}`, data),
@@ -39,6 +56,8 @@ export const adminApi = {
   updateOrderStatus: (id: number, status: string) => apiPut<Order>(`/admin/orders/${id}/status`, { status }, true),
   users: (params?: Record<string, unknown>) => apiGet<PageResponse<User>>('/admin/users', params, true),
   updateUserStatus: (id: number, status: string) => apiPut<User>(`/admin/users/${id}/status`, { status }, true),
+  reviews: (params?: Record<string, unknown>) => apiGet<PageResponse<AdminReview>>('/admin/reviews', params, true),
+  updateReviewStatus: (id: number, status: string) => apiPut<AdminReview>(`/admin/reviews/${id}/status`, { status }, true),
   inventoryAlerts: (params?: Record<string, unknown>) => apiGet<PageResponse<any>>('/admin/inventory/alerts', params, true),
   updateAlertStatus: (id: number, status: string) => apiPut<any>(`/admin/inventory/alerts/${id}/status`, { status }, true),
   salesStatistics: (params?: Record<string, unknown>) => apiGet<any[]>('/admin/sales/statistics', params, true),

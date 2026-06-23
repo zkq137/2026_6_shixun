@@ -15,6 +15,7 @@ from app.models.ai import (
 )
 from app.models.order import Cart, Order, OrderItem
 from app.models.product import Category, Product
+from app.models.review import ProductReview
 
 __all__ = [
     "Admin",
@@ -28,6 +29,7 @@ __all__ = [
     "Order",
     "OrderItem",
     "Product",
+    "ProductReview",
     "ProductSimilarity",
     "RecommendResult",
     "SalesPrediction",
@@ -35,4 +37,3 @@ __all__ = [
     "User",
     "UserBehavior",
 ]
-

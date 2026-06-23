@@ -201,7 +201,7 @@ async function toggle(row: Product) {
 
 async function remove(row: Product) {
   await ElMessageBox.confirm(
-    `确认永久删除“${row.name}”吗？如果商品已有订单、购物车、行为或统计记录，系统会拒绝删除，请改用下架。`,
+    `确认永久删除“${row.name}”吗？如果商品已有订单、购物车、评论、行为或统计记录，系统会拒绝删除，请改用下架。`,
     '删除商品',
     { type: 'warning', confirmButtonText: '确认删除', cancelButtonText: '取消' },
   )

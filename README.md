@@ -74,3 +74,19 @@ create_inventory_alert
 7. 完成销量预测、库存预警和后台 AI 运营助手。
 8. 准备演示数据、测试用例和答辩说明。
 
+
+## 2026-06-23 更新：商品图片上传
+
+后台商品管理已支持管理员上传、预览、替换、清空商品主图。上传接口为：
+
+```text
+POST /api/admin/uploads/product-image
+```
+
+上传文件保存到：
+
+```text
+backend/uploads/products/
+```
+
+生产环境需要配置 Nginx 暴露 `/uploads/`，详见 `docs/09-部署运行说明.md` 和 `docs/12-服务器更新维护指南.md`。
